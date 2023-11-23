@@ -1,0 +1,23 @@
+services:
+  mysql_slave:
+    image: percona:ps-8.0
+    container_name: mysql_slave
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    env_file:
+      - ./mysql_slave.env
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - ./mysql_slave.cnf:/etc/mysql/conf.d/mysql.cnf
+      # - dbdata:/var/lib/mysql
+    networks:
+      - mysql
+ 
+networks:
+  mysql:
+    external: true
+
+# volumes:
+#   dbdata:
+#     driver: local

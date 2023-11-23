@@ -1,0 +1,76 @@
+- name: Ensure directories exists
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    mode: '0644'
+  loop:
+    - ~/compose
+    - ~/compose/mysql-slave
+
+# - name: Ensure mysql compose files are down
+#   community.docker.docker_compose:
+#     state: absent
+#     project_src: ~/compose/mysql/
+#     files:
+#       - docker-compose.yml
+
+- name: Ensure docker-compose file has been updated
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: ~/compose/mysql-slave/
+    mode: '0644'
+  loop:
+    - docker-compose.yml
+    - mysql_slave.env
+    - mysql_slave.cnf
+
+- name: Ensure mysql compose files are up
+  community.docker.docker_compose:
+    state: present
+    project_src: ~/compose/mysql-slave/
+    files:
+      - docker-compose.yml
+
+- name: Pause for 10 seconds to build app cache
+  ansible.builtin.pause:
+   seconds: 10
+
+- name: Create replication user
+  community.docker.docker_container_exec:
+    container: mysql_slave
+    command: mysql -h 127.0.0.1 -uroot -p{{ MYSQL_ROOT_PASSWORD }} -vvv -e"SET GLOBAL server_id = 2"
+    chdir: /root
+  register: result
+
+- name: Create replication user
+  community.docker.docker_container_exec:
+    container: mysql_slave
+    command: mysql -h 127.0.0.1 -uroot -p{{ MYSQL_ROOT_PASSWORD }} -vvv -e"CHANGE MASTER TO MASTER_HOST='mysql_master',MASTER_USER='repl',MASTER_PASSWORD='slavepass',MASTER_LOG_FILE='binlog.000002',MASTER_LOG_POS=660;"
+    chdir: /root
+  register: result
+
+- name: Print stdout
+  ansible.builtin.debug:
+    var: result.stdout
+
+- name: Start replication
+  community.docker.docker_container_exec:
+    container: mysql_slave
+    command: mysql -uroot -p{{ MYSQL_ROOT_PASSWORD }} -vvv -e"START SLAVE;"
+    chdir: /root
+  register: result
+
+- name: Print stdout
+  ansible.builtin.debug:
+    var: result.stdout
+
+- name: Verify replication is running OK
+  community.docker.docker_container_exec:
+    container: mysql_slave
+    command: mysql -uroot -p{{ MYSQL_ROOT_PASSWORD }} -vvv -e"SHOW SLAVE STATUS;"
+    chdir: /root
+  register: result
+
+- name: Print stdout
+  ansible.builtin.debug:
+    var: result.stdout
