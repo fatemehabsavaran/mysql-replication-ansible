@@ -1,0 +1,22 @@
+services:
+  pmm-agent:
+    container_name: pmm-agent
+    image: percona/pmm-client:2
+    volumes:
+      - /srv
+    environment:
+      - PMM_AGENT_SERVER_USERNAME=admin 
+      - PMM_AGENT_SERVER_PASSWORD=admin
+      - PMM_AGENT_SERVER_INSECURE_TLS=1
+      - PMM_AGENT_SETUP=1
+      - PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml 
+      - PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER}
+      - PMM_SERVER=https://admin:admin@ip:443
+    networks:
+      - mysql
+
+volumes:
+  srv:
+
+networks:
+  mysql:

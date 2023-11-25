@@ -1,0 +1,64 @@
+- name: Ensure directories exists
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    mode: '0644'
+  loop:
+    - ~/compose
+    - ~/compose/pmm-server
+
+- name: Ensure docker-compose file has been updated
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: ~/compose/pmm-server/
+    mode: '0644'
+  loop:
+    - docker-compose.yml
+    - mysql_master.env
+- name: Ensure pmm-server compose files are up
+  community.docker.docker_compose:
+    state: present
+    project_src: ~/compose/pmm-server/
+    files:
+      - docker-compose.yml
+     
+
+
+- name: Configure pmm-agent in pmm-server bash
+  community.docker.docker_container_exec:
+    container: pmm-server
+    command: pmm-admin config --server-insecure-tls --server-url=https://admin:admin@ip:443 ip generic mynode
+    chdir: /root
+  register: result
+
+- name: Print stdout
+  ansible.builtin.debug:
+    var: result.stdout
+
+
+
+- name: Create a db account for pmm
+  community.docker.docker_container_exec:
+    container: mysql_master
+    command: mysql -h 127.0.0.1 -uroot -p{{ MYSQL_ROOT_PASSWORD }} -vvv -e"CREATE USER 'pmm'@'127.0.0.1' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;"
+    chdir: /root
+  register: result
+
+- name: Print stdout
+  ansible.builtin.debug:
+    var: result.stdout
+
+
+- name: Grant access
+  community.docker.docker_container_exec:
+    container: mysql_master
+    command: mysql -h 127.0.0.1 -u root -p{{ MYSQL_ROOT_PASSWORD }} -vvv -e"GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD, BACKUP_ADMIN ON *.* TO 'pmm'@'127.0.0.1';"
+    chdir: /root
+  register: result
+
+- name: Print stdout
+  ansible.builtin.debug:
+    var: result.stdout
+
+
+
