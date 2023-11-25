@@ -1,9 +1,14 @@
-# master slave mysql
+# MySQL Replication and Percona Monitoring system
 
-[Ansible doc](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+- [Ansible doc](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+- [MySQL doc](https://dev.mysql.com/doc/refman/8.0/en/replication.html)
+- [Percona Monitoring](https://docs.percona.com/percona-monitoring-and-management/index.html)
 
 ## Roles
-- [x] MySQL (mysql:8.0-debian)
+- [x] MySQL 
+- [x] PMM-Server
+- [x] PMM-Agent
+
 
 ## Setup
 ```
@@ -13,7 +18,7 @@ pip install -r requirements.txt
 ```
 
 ## Run
-Add ssh config host name to `hosts`
+Add ssh config hostname to `hosts`
 ```
 ansible-playbook setup.yml
 ```
