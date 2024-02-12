@@ -5,19 +5,19 @@
     mode: '0644'
   loop:
     - ~/compose
-    - ~/compose/pmm-agent
+    - ~/compose/mysqld-exporter
 
 - name: Ensure docker-compose file has been updated
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: ~/compose/pmm-agent/
+    dest: ~/compose/mysqld-exporter/
     mode: '0644'
   loop:
     - docker-compose.yml
 
-- name: Ensure pmm-agent compose files are up
+- name: Ensure mysqld-exporter compose files are up
   community.docker.docker_compose:
     state: present
-    project_src: ~/compose/pmm-agent/
+    project_src: ~/compose/mysqld-exporter/
     files:
       - docker-compose.yml

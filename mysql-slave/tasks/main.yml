@@ -31,7 +31,7 @@
     files:
       - docker-compose.yml
 
-- name: Pause for 10 seconds to build app cache
+- name: Pause for 10 seconds to add binlog
   ansible.builtin.pause:
    seconds: 10
 

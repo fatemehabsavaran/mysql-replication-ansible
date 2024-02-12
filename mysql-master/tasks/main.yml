@@ -7,12 +7,6 @@
     - ~/compose
     - ~/compose/mysql
 
-# - name: Ensure mysql compose files are down
-#   community.docker.docker_compose:
-#     state: absent
-#     project_src: ~/compose/mysql/
-#     files:
-#       - docker-compose.yml
 
 - name: Ensure docker-compose file has been updated
   ansible.builtin.template:
@@ -31,7 +25,7 @@
     files:
       - docker-compose.yml
 
-- name: Pause for 10 seconds to build app cache
+- name: Pause for 10 seconds to add binlog
   ansible.builtin.pause:
    seconds: 10
 

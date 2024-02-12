@@ -3,4 +3,5 @@
   roles:
     - mysql-master
     - mysql-slave
+    - mysqld-exporter
    

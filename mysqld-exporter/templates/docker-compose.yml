@@ -1,0 +1,16 @@
+services:
+  mysqld-exporter:
+    image: quay.io/prometheus/mysqld-exporter
+    command:
+     - -collect.global_status
+    container_name: mysqld-exporter
+    environment:
+      - DATA_SOURCE_NAME=exporter:exporter@(mysql:3306)/
+    ports:
+      - 9104:9104
+    networks:
+      - mysql
+
+networks:
+  mysql:
+    external: true

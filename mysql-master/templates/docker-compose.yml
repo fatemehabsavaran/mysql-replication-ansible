@@ -10,7 +10,7 @@ services:
       - "127.0.0.1:3306:3306"
     volumes:
       - ./mysql_master.cnf:/etc/mysql/conf.d/mysql.cnf
-    #   - dbdata:/var/lib/mysql/
+      - dbdata:/var/lib/mysql/
     networks:
       - mysql
 
@@ -19,6 +19,6 @@ networks:
     driver: bridge
     name: mysql
 
-# volumes:
-#   dbdata:
-#     driver: local
+volumes:
+  dbdata:
+    driver: local
